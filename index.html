@@ -9,7 +9,7 @@
     :root {
       color-scheme: light;
       font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-      color: #402b3b;
+      color: #202331;
       background: #163b46;
       font-synthesis: none;
     }
@@ -33,16 +33,16 @@
       inset: 0;
       overflow: hidden;
       background:
-        radial-gradient(ellipse at 50% 18%, rgb(165 229 236 / 48%), transparent 45%),
-        linear-gradient(180deg, #8ecbd0 0%, #4a9296 39%, #164653 100%);
+        radial-gradient(ellipse at 50% 18%, rgb(151 213 255 / 46%), transparent 45%),
+        linear-gradient(180deg, #83bee4 0%, #4686b8 39%, #173c63 100%);
     }
 
     .waterfall-scene::before {
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse at 50% 88%, rgb(185 245 243 / 38%), transparent 32%),
-        linear-gradient(180deg, transparent 53%, rgb(9 44 54 / 32%));
+        radial-gradient(ellipse at 50% 88%, rgb(157 220 255 / 38%), transparent 32%),
+        linear-gradient(180deg, transparent 53%, rgb(9 34 64 / 32%));
       content: "";
     }
 
@@ -52,10 +52,10 @@
       bottom: 0;
       width: min(37vw, 520px);
       background:
-        radial-gradient(ellipse at 55% 23%, rgb(151 183 137 / 48%), transparent 25%),
-        radial-gradient(ellipse at 72% 62%, rgb(93 137 108 / 42%), transparent 32%),
-        repeating-linear-gradient(168deg, transparent 0 33px, rgb(24 62 58 / 28%) 35px 41px, transparent 45px 72px),
-        linear-gradient(115deg, #173f3f, #527764 48%, #284c48);
+        radial-gradient(ellipse at 55% 23%, rgb(125 183 232 / 48%), transparent 25%),
+        radial-gradient(ellipse at 72% 62%, rgb(63 122 177 / 42%), transparent 32%),
+        repeating-linear-gradient(168deg, transparent 0 33px, rgb(18 49 83 / 28%) 35px 41px, transparent 45px 72px),
+        linear-gradient(115deg, #172c4c, #4e79a5 48%, #253d66);
       box-shadow: inset 0 0 56px rgb(10 39 38 / 52%);
     }
 
@@ -80,9 +80,9 @@
       transform: translateX(-50%);
       clip-path: polygon(23% 0, 77% 0, 100% 100%, 0 100%);
       background:
-        linear-gradient(90deg, rgb(153 228 238 / 72%), rgb(234 255 255 / 94%) 23%, #85d6e3 48%, rgb(229 253 255 / 94%) 75%, rgb(126 204 217 / 88%)),
-        linear-gradient(180deg, #d7fbff, #58b5cb);
-      box-shadow: 0 0 72px rgb(196 250 255 / 65%);
+        linear-gradient(90deg, rgb(100 174 255 / 84%), rgb(236 249 255 / 97%) 23%, #57a9f5 48%, rgb(226 244 255 / 96%) 75%, rgb(65 144 234 / 92%)),
+        linear-gradient(180deg, #c9eaff, #2075d0);
+      box-shadow: 0 0 72px rgb(119 184 255 / 78%);
       animation: waterfallGlow 5s ease-in-out infinite alternate;
     }
 
@@ -91,7 +91,7 @@
       inset: -100% -10% 0;
       background:
         repeating-linear-gradient(90deg, transparent 0 8px, rgb(255 255 255 / 34%) 9px 11px, transparent 13px 25px),
-        repeating-linear-gradient(90deg, transparent 0 36px, rgb(38 141 164 / 25%) 38px 42px, transparent 45px 64px),
+        repeating-linear-gradient(90deg, transparent 0 36px, rgb(33 93 177 / 28%) 38px 42px, transparent 45px 64px),
         repeating-linear-gradient(176deg, transparent 0 17px, rgb(255 255 255 / 25%) 18px 20px, transparent 22px 38px);
       content: "";
       animation: waterFlow 1.5s linear infinite;
@@ -138,11 +138,15 @@
       color: #a83f68;
       font-size: clamp(1.8rem, 7vw, 2.5rem);
       line-height: 1.12;
+      background: linear-gradient(90deg, #ed4264, #f49b38, #63ad57, #278fd0, #9855bd, #ed4264);
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text;
     }
 
     p {
       margin: 0;
-      color: #765d6b;
+      color: #292c3a;
       font-size: 1.08rem;
       line-height: 1.6;
     }
@@ -183,7 +187,7 @@
     }
 
     .no {
-      color: #765d6b;
+      color: #292c3a;
       background: #f4edf0;
     }
 
@@ -192,6 +196,8 @@
       z-index: 3;
       transition: left 170ms ease, top 170ms ease;
     }
+
+    #confirmMessage[hidden] { display: none; }
 
     .details {
       display: grid;
@@ -205,7 +211,7 @@
     label {
       display: grid;
       gap: 8px;
-      color: #654557;
+      color: #292c3a;
       font-size: .95rem;
       font-weight: 700;
     }
@@ -217,7 +223,7 @@
       border: 1px solid #ead8e0;
       border-radius: 12px;
       outline: none;
-      color: #402b3b;
+      color: #202331;
       background: white;
     }
 
@@ -232,7 +238,7 @@
     .success p + p { margin-top: 10px; }
 
     .details h1 { color: #236b78; }
-    .details p { color: #456c72; }
+    .details p { color: #292c3a; }
 
     #fireworks {
       position: fixed;
@@ -264,9 +270,12 @@
   <canvas id="fireworks" aria-hidden="true"></canvas>
   <main class="card">
     <section id="question">
-      <div class="heart" aria-hidden="true">💌</div>
-      <h1>Hi, I’m Mark Jroa!</h1>
-      <p>Would you like to go on a date with me?</p>
+      <div id="introMessage">
+        <div class="heart" aria-hidden="true">💌</div>
+        <h1>Hi, I’m Mark Jroa!</h1>
+        <p>Would you like to go on a date with me?</p>
+      </div>
+      <h1 id="confirmMessage" hidden>Are you sure?</h1>
       <div class="buttons">
         <button class="yes" id="yesButton" type="button">Yes! 💖</button>
         <button class="no" id="noButton" type="button" aria-label="No (this button is very shy)">No 🙈</button>
@@ -317,7 +326,18 @@
       .toISOString().slice(0, 10);
     dateInput.min = localToday;
 
+    const introMessage = document.querySelector("#introMessage");
+    const confirmMessage = document.querySelector("#confirmMessage");
+    let askedForConfirmation = false;
+
     document.querySelector("#yesButton").addEventListener("click", () => {
+      if (!askedForConfirmation) {
+        askedForConfirmation = true;
+        introMessage.hidden = true;
+        confirmMessage.hidden = false;
+        return;
+      }
+
       question.hidden = true;
       dateForm.hidden = false;
       dateInput.focus();
