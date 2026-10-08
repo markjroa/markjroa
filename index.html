@@ -160,6 +160,461 @@
       margin-top: 28px;
     }
 
+    .buttons.confirmed #noButton { order: 1; }
+    .buttons.confirmed #yesButton { order: 2; }
+
+    button, select, input {
+      font: inherit;
+    }
+
+    button {
+      min-height: 48px;
+      padding: 12px 25px;
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    button:hover { transform: translateY(-2px); }
+
+    .yes, .submit {
+      color: white;
+      background: linear-gradient(135deg, #e85585, #c63d72);
+      box-shadow: 0 8px 20px rgb(198 61 114 / 23%);
+    }
+
+    .yes:hover, .submit:hover {
+      box-shadow: 0 11px 24px rgb(198 61 114 / 30%);
+    }
+
+    .no {
+      color: #292c3a;
+      background: #f4edf0;
+    }
+
+    .no.is-running {
+      position: fixed;
+      z-index: 3;
+      transition: left 170ms ease, top 170ms ease;
+    }
+
+    #confirmMessage[hidden] { display: none; }
+
+    .details {
+      display: grid;
+      gap: 18px;
+      margin-top: 26px;
+      text-align: left;
+    }
+
+    .details[hidden], .success[hidden] { display: none; }
+
+    label {
+      display: grid;
+      gap: 8px;
+      color: #292c3a;
+      font-size: .95rem;
+      font-weight: 700;
+    }
+
+    input, select {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 13px;
+      border: 1px solid #ead8e0;
+      border-radius: 12px;
+      outline: none;
+      color: #202331;
+      background: white;
+    }
+
+    input:focus, select:focus {
+      border-color: #d95d88;
+      box-shadow: 0 0 0 3px rgb(217 93 136 / 15%);
+    }
+
+    .submit { width: 100%; margin-top: 4px; }
+
+    .success h1 { margin-top: 0; }
+    .success p + p { margin-top: 10px; }
+
+    .details h1 { color: #236b78; }
+    .details p { color: #292c3a; }
+
+    #fireworks {
+      position: fixed;
+      z-index: 2;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+
+      .waterfall, .waterfall::before, .waterfall::after {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="waterfall-scene" aria-hidden="true">
+    <div class="cliff cliff-left"></div>
+    <div class="cliff cliff-right"></div>
+    <div class="waterfall"></div>
+  </div>
+  <canvas id="fireworks" aria-hidden="true"></canvas>
+  <main class="card">
+    <section id="question">
+      <div id="introMessage">
+        <div class="heart" aria-hidden="true">💌</div>
+        <h1>Hi, I’m Mark Jroa!</h1>
+        <p>Would you like to go on a date with me?</p>
+      </div>
+      <h1 id="confirmMessage" hidden>Are you sure?</h1>
+      <div class="buttons">
+        <button class="yes" id="yesButton" type="button">Yes! 💖</button>
+        <button class="no" id="noButton" type="button" aria-label="No (this button is very shy)">No 🙈</button>
+      </div>
+    </section>
+
+    <form class="details" id="dateForm" hidden>
+      <div>
+        <div class="heart" aria-hidden="true">🥰</div>
+        <h1>You really accepted me</h1>
+        <p>Fine, let’s go to a date, Mother Pader!</p>
+      </div>
+      <label for="date">Pick a date
+        <input id="date" name="date" type="date" required>
+      </label>
+      <label for="restaurant">Choose a fast-food place
+        <select id="restaurant" name="restaurant" required>
+          <option value="" disabled selected>Pick your favorite</option>
+          <option>Jollibee</option>
+          <option>McDonald’s</option>
+          <option>KFC</option>
+          <option>Burger King</option>
+          <option>Subway</option>
+          <option>You choose!</option>
+        </select>
+      </label>
+      <button class="submit" type="submit">Confirm our date ✨</button>
+    </form>
+
+    <section class="success" id="success" hidden aria-live="polite">
+      <div class="heart" aria-hidden="true">🎆</div>
+      <h1>It’s a date!</h1>
+      <p id="dateSummary"></p>
+      <p>Can’t wait! 💖</p>
+    </section>
+  </main>
+
+  <script>
+    const question = document.querySelector("#question");
+    const dateForm = document.querySelector("#dateForm");
+    const success = document.querySelector("#success");
+    const noButton = document.querySelector("#noButton");
+    const canvas = document.querySelector("#fireworks");
+    const context = canvas.getContext("2d");
+    const dateInput = document.querySelector("#date");
+    const today = new Date();
+    const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+      .toISOString().slice(0, 10);
+    dateInput.min = localToday;
+
+    const introMessage = document.querySelector("#introMessage");
+    const confirmMessage = document.querySelector("#confirmMessage");
+    let askedForConfirmation = false;
+    const buttons = document.querySelector(".buttons");
+
+    document.querySelector("#yesButton").addEventListener("click", () => {
+      if (!askedForConfirmation) {
+        askedForConfirmation = true;
+        introMessage.hidden = true;
+        confirmMessage.hidden = false;
+        buttons.classList.add("confirmed");
+        return;
+      }
+
+      question.hidden = true;
+      dateForm.hidden = false;
+      dateInput.focus();
+    });
+
+    function moveNoButton() {
+      const padding = 12;
+      const maxX = Math.max(padding, window.innerWidth - noButton.offsetWidth - padding);
+      const maxY = Math.max(padding, window.innerHeight - noButton.offsetHeight - padding);
+      let x = padding + Math.random() * (maxX - padding);
+      let y = padding + Math.random() * (maxY - padding);
+      const card = document.querySelector(".card").getBoundingClientRect();
+
+      for (let attempt = 0; attempt < 12; attempt += 1) {
+        if (x + noButton.offsetWidth < card.left || x > card.right ||
+            y + noButton.offsetHeight < card.top || y > card.bottom) break;
+        x = padding + Math.random() * (maxX - padding);
+        y = padding + Math.random() * (maxY - padding);
+      }
+
+      noButton.classList.add("is-running");
+      noButton.style.left = `${x}px`;
+      noButton.style.top = `${y}px`;
+    }
+
+    noButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      moveNoButton();
+    });
+
+    dateForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!dateForm.reportValidity()) return;
+
+      const date = new Date(`${dateInput.value}T00:00:00`);
+      const formattedDate = new Intl.DateTimeFormat(undefined, {
+        dateStyle: "long"
+      }).format(date);
+      document.querySelector("#dateSummary").textContent =
+        `See you on ${formattedDate} at ${document.querySelector("#restaurant").value}!`;
+      dateForm.hidden = true;
+      success.hidden = false;
+      startFireworks();
+    });
+
+    const particles = [];
+    let animationFrame;
+
+    function resizeCanvas() {
+      const pixelRatio = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * pixelRatio;
+      canvas.height = window.innerHeight * pixelRatio;
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function burst() {
+      const colors = ["#ff5277", "#ffc857", "#8f7cff", "#55c9a5", "#fff1a8"];
+      const x = Math.random() * window.innerWidth;
+      const y = 70 + Math.random() * window.innerHeight * 0.55;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+
+      for (let i = 0; i < 55; i += 1) {
+        const angle = (Math.PI * 2 * i) / 55;
+        const speed = 1.2 + Math.random() * 4;
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 55 + Math.random() * 30,
+          color
+        });
+      }
+    }
+
+    function animateFireworks() {
+      context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      for (let i = particles.length - 1; i >= 0; i -= 1) {
+        const particle = particles[i];
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+        particle.vy += 0.035;
+        particle.life -= 1;
+        context.globalAlpha = Math.min(1, particle.life / 25);
+        context.fillStyle = particle.color;
+        context.beginPath();
+        context.arc(particle.x, particle.y, 2.3, 0, Math.PI * 2);
+        context.fill();
+        if (particle.life <= 0) particles.splice(i, 1);
+      }
+      context.globalAlpha = 1;
+      animationFrame = requestAnimationFrame(animateFireworks);
+    }
+
+    function startFireworks() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      burst();
+      burst();
+      animateFireworks();
+      const interval = window.setInterval(burst, 650);
+      window.setTimeout(() => {
+        window.clearInterval(interval);
+        window.cancelAnimationFrame(animationFrame);
+      }, 8000);
+    }
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#163b46">
+  <title>A little question for you</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: #202331;
+      background: #163b46;
+      font-synthesis: none;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding: 24px;
+      background: #163b46;
+    }
+
+    .waterfall-scene {
+      position: fixed;
+      z-index: 0;
+      inset: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 50% 18%, rgb(151 213 255 / 46%), transparent 45%),
+        linear-gradient(180deg, #83bee4 0%, #4686b8 39%, #173c63 100%);
+    }
+
+    .waterfall-scene::before {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 88%, rgb(157 220 255 / 38%), transparent 32%),
+        linear-gradient(180deg, transparent 53%, rgb(9 34 64 / 32%));
+      content: "";
+    }
+
+    .cliff {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: min(37vw, 520px);
+      background:
+        radial-gradient(ellipse at 55% 23%, rgb(125 183 232 / 48%), transparent 25%),
+        radial-gradient(ellipse at 72% 62%, rgb(63 122 177 / 42%), transparent 32%),
+        repeating-linear-gradient(168deg, transparent 0 33px, rgb(18 49 83 / 28%) 35px 41px, transparent 45px 72px),
+        linear-gradient(115deg, #172c4c, #4e79a5 48%, #253d66);
+      box-shadow: inset 0 0 56px rgb(10 39 38 / 52%);
+    }
+
+    .cliff-left {
+      left: 0;
+      clip-path: polygon(0 0, 100% 0, 93% 14%, 100% 25%, 88% 38%, 96% 51%, 84% 64%, 95% 80%, 88% 100%, 0 100%);
+    }
+
+    .cliff-right {
+      right: 0;
+      transform: scaleX(-1);
+      clip-path: polygon(0 0, 100% 0, 93% 14%, 100% 25%, 88% 38%, 96% 51%, 84% 64%, 95% 80%, 88% 100%, 0 100%);
+    }
+
+    .waterfall {
+      position: absolute;
+      top: 12%;
+      left: 50%;
+      width: min(58vw, 780px);
+      height: 98%;
+      overflow: hidden;
+      transform: translateX(-50%);
+      clip-path: polygon(23% 0, 77% 0, 100% 100%, 0 100%);
+      background:
+        linear-gradient(90deg, rgb(100 174 255 / 84%), rgb(236 249 255 / 97%) 23%, #57a9f5 48%, rgb(226 244 255 / 96%) 75%, rgb(65 144 234 / 92%)),
+        linear-gradient(180deg, #c9eaff, #2075d0);
+      box-shadow: 0 0 72px rgb(119 184 255 / 78%);
+      animation: waterfallGlow 5s ease-in-out infinite alternate;
+    }
+
+    .waterfall::before {
+      position: absolute;
+      inset: -100% -10% 0;
+      background:
+        repeating-linear-gradient(90deg, transparent 0 8px, rgb(255 255 255 / 34%) 9px 11px, transparent 13px 25px),
+        repeating-linear-gradient(90deg, transparent 0 36px, rgb(33 93 177 / 28%) 38px 42px, transparent 45px 64px),
+        repeating-linear-gradient(176deg, transparent 0 17px, rgb(255 255 255 / 25%) 18px 20px, transparent 22px 38px);
+      content: "";
+      animation: waterFlow 1.5s linear infinite;
+    }
+
+    .waterfall::after {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 35%, rgb(255 255 255 / 42%) 49%, transparent 61%);
+      content: "";
+      animation: waterShimmer 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes waterFlow {
+      to { transform: translateY(45%); }
+    }
+
+    @keyframes waterfallGlow {
+      from { filter: brightness(.9); }
+      to { filter: brightness(1.12); }
+    }
+
+    @keyframes waterShimmer {
+      from { opacity: .25; transform: translateX(-12%); }
+      to { opacity: .8; transform: translateX(12%); }
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      width: min(100%, 480px);
+      padding: clamp(28px, 7vw, 48px);
+      border: 1px solid #ffffff;
+      border-radius: 28px;
+      background: rgb(255 255 255 / 88%);
+      box-shadow: 0 22px 70px rgb(122 61 85 / 12%);
+      text-align: center;
+    }
+
+    .heart { font-size: 42px; }
+
+    h1 {
+      margin: 14px 0 12px;
+      color: #a83f68;
+      font-size: clamp(1.8rem, 7vw, 2.5rem);
+      line-height: 1.12;
+      background: linear-gradient(90deg, #ed4264, #f49b38, #63ad57, #278fd0, #9855bd, #ed4264);
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text;
+    }
+
+    p {
+      margin: 0;
+      color: #292c3a;
+      font-size: 1.08rem;
+      line-height: 1.6;
+    }
+
+    .buttons {
+      display: flex;
+      min-height: 62px;
+      justify-content: center;
+      align-items: center;
+      gap: 18px;
+      margin-top: 28px;
+    }
+
     button, select, input {
       font: inherit;
     }
